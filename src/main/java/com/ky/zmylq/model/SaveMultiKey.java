@@ -6,23 +6,23 @@ import java.io.Serializable;
 
 @Embeddable
 public class SaveMultiKey implements Serializable {
-    private Integer uuid;
+    private Long uuid;
     private Integer saveid;
 
     public SaveMultiKey() {
 
     }
 
-    public SaveMultiKey(Integer uuid, Integer saveid) {
+    public SaveMultiKey(Long uuid, Integer saveid) {
         this.uuid = uuid;
         this.saveid = saveid;
     }
 
-    public void setUuid(Integer uuid) {
+    public void setUuid(Long uuid) {
         this.uuid = uuid;
     }
 
-    public Integer getUuid() {
+    public Long getUuid() {
         return uuid;
     }
 

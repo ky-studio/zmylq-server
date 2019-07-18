@@ -9,4 +9,7 @@ import javax.transaction.Transactional;
 @Transactional
 public interface SaveDao extends CrudRepository<Save, SaveMultiKey> {
 
+    void deleteBySaveMultiKey(SaveMultiKey mk);
+    Save findBySaveMultiKey(SaveMultiKey mk);
+
 }

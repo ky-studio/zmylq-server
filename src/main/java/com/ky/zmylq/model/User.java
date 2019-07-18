@@ -9,7 +9,7 @@ import java.util.Date;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int uuid;
+    private Long uuid;
 
     @NotNull
     private boolean status;
@@ -26,13 +26,13 @@ public class User {
         this.lastLoginDate = date;
     }
 
-    public User(int uuid, boolean status, String date) {
+    public User(Long uuid, boolean status, String date) {
         this.uuid = uuid;
         this.status = status;
         this.lastLoginDate = date;
     }
 
-    public int getUuid() {
+    public Long getUuid() {
         return uuid;
     }
 
@@ -44,7 +44,7 @@ public class User {
         return lastLoginDate;
     }
 
-    public void setUuid(int uuid) {
+    public void setUuid(Long uuid) {
         this.uuid = uuid;
     }
 
