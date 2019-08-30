@@ -1,7 +1,6 @@
-package com.ky.zmylq.model;
+package com.ky.backtracking.model;
 
 import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
 import java.io.Serializable;
 
 @Embeddable

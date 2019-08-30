@@ -1,4 +1,4 @@
-package com.ky.zmylq;
+package com.ky.backtracking;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,8 +1,7 @@
-package com.ky.zmylq.model;
+package com.ky.backtracking.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 @Entity
 @Table(name = "users")
@@ -10,6 +9,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long uuid;
+
+    private  String pNumber;
 
     @NotNull
     private boolean status;
@@ -21,13 +22,15 @@ public class User {
 
     }
 
-    public User(boolean status, String date) {
+    public User(String pNumber, boolean status, String date) {
+        this.pNumber = pNumber;
         this.status = status;
         this.lastLoginDate = date;
     }
 
-    public User(Long uuid, boolean status, String date) {
+    public User(Long uuid, String pNumber, boolean status, String date) {
         this.uuid = uuid;
+        this.pNumber = pNumber;
         this.status = status;
         this.lastLoginDate = date;
     }
@@ -44,6 +47,10 @@ public class User {
         return lastLoginDate;
     }
 
+    public String getpNumber() {
+        return pNumber;
+    }
+
     public void setUuid(Long uuid) {
         this.uuid = uuid;
     }
@@ -54,5 +61,9 @@ public class User {
 
     public void setLastLoginDate(String lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
+    }
+
+    public void setpNumber(String pNumber) {
+        this.pNumber = pNumber;
     }
 }
