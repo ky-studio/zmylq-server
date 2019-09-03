@@ -18,6 +18,8 @@ public class User {
     @NotNull
     private String lastLoginDate;
 
+    private String totalPlayTime;
+
     public User() {
 
     }
@@ -28,11 +30,12 @@ public class User {
         this.lastLoginDate = date;
     }
 
-    public User(Long uuid, String pNumber, boolean status, String date) {
+    public User(Long uuid, String pNumber, boolean status, String date, String totalPlayTime) {
         this.uuid = uuid;
         this.pNumber = pNumber;
         this.status = status;
         this.lastLoginDate = date;
+        this.totalPlayTime = totalPlayTime;
     }
 
     public Long getUuid() {
@@ -51,6 +54,10 @@ public class User {
         return pNumber;
     }
 
+    public String getTotalPlayTime() {
+        return totalPlayTime;
+    }
+
     public void setUuid(Long uuid) {
         this.uuid = uuid;
     }
@@ -65,5 +72,9 @@ public class User {
 
     public void setpNumber(String pNumber) {
         this.pNumber = pNumber;
+    }
+
+    public void setTotalPlayTime(String totalPlayTime) {
+        this.totalPlayTime = totalPlayTime;
     }
 }

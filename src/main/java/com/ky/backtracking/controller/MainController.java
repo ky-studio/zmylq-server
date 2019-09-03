@@ -39,7 +39,7 @@ public class MainController {
                 user.setLastLoginDate(df.format(now));
                 userService.updateUser(user);
                 uuid = user.getUuid();
-                // TODO: 从服务器同步存档到本地
+                // 从服务器同步存档到本地
                 return "REG_SYN_FROM_SERVER:" + String.valueOf(uuid);
             } else {
                 // 手机号不存在，添加新用户
@@ -116,7 +116,7 @@ public class MainController {
             } else {
                 // ERROR LOG
                 return "WRITESAVE_FAIL";
-        }
+            }
         }
         return "WRITESAVE_SUCCESS";
     }
