@@ -1,14 +1,14 @@
 package com.ky.backtracking.controller;
 
 import com.ky.backtracking.model.*;
+import com.ky.backtracking.service.AchieveService;
 import com.ky.backtracking.service.SaveService;
 import com.ky.backtracking.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
+import javax.jws.soap.SOAPBinding;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -20,15 +20,18 @@ public class MainController {
 
     @Autowired
     private SaveService saveService;
+
+    @Autowired
+    private AchieveService achieveService;
     /*
      * 用户第一次进入游戏，添加一个用户账号，返回给客户端一个UUID
      * 如果有手机号同时添加存档信息到存档表，如果没有则为游客不添加存档
      */
     @RequestMapping(value = "/btl/register", method = RequestMethod.GET)
     @ResponseBody
-    public String register(@RequestParam(name = "pnumber", required = false) String pNumber) {
-        Date now = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    public String register(@RequestParam(name = "pnumber", required = false) String pNumber, @RequestParam(name = "datetime") String datetime) {
+//        Date now = new Date();
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         // 手机号不为空
         Long uuid = 0L;
         if (pNumber != null && !pNumber.isEmpty()) {
@@ -36,14 +39,14 @@ public class MainController {
             // 手机号已存在，修改登录状态
             if (user != null) {
                 user.setStatus(true);
-                user.setLastLoginDate(df.format(now));
+                user.setLastLoginDate(datetime);
                 userService.updateUser(user);
                 uuid = user.getUuid();
                 // 从服务器同步存档到本地
                 return "REG_SYN_FROM_SERVER:" + String.valueOf(uuid);
             } else {
                 // 手机号不存在，添加新用户
-                user = new User(pNumber,true, df.format(now));
+                user = new User(pNumber,true, datetime, "0.0");
                 userService.addUser(user);
                 uuid = user.getUuid();
                 // 如果是新手机号注册用户新建空存档
@@ -51,11 +54,13 @@ public class MainController {
                     Save save = new Save(new SaveMultiKey(uuid, i), "");
                     saveService.addSave(save);
                 }
+                Achievement achievement = new Achievement(uuid);
+                achieveService.addAchievement(achievement);
                 return "REG_SUCCESS:" + String.valueOf(uuid);
             }
 
         } else { // 手机号为空，添加游客
-            User user = new User(null,true, df.format(now));
+            User user = new User(null,true, datetime, "0.0");
             userService.addUser(user);
             uuid = user.getUuid();
             return "REG_SUCCESS:" + String.valueOf(uuid);
@@ -64,21 +69,23 @@ public class MainController {
 
     /*
      * 已有账号的用户登录游戏，更新服务器用户信息
+     * 对比服务器上次登录时间和客户端上次登录时间，
      */
     @RequestMapping(value = "/btl/login", method = RequestMethod.GET)
     @ResponseBody
-    public String login(@RequestParam(name = "uuid") String uuid_str) {
+    public String login(@RequestParam(name = "uuid") String uuid_str, @RequestParam(name = "datetime") String datetime) {
         Long uuid = Long.valueOf(uuid_str);
         User user = userService.findUserByUuid(uuid);
+        String svrLastLoginDate = user.getLastLoginDate();
         if (user == null) {
             return "LOGIN_FAIL";
         }
-        Date now = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+//        Date now = new Date();
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         user.setStatus(true);
-        user.setLastLoginDate(df.format(now));
+        user.setLastLoginDate(datetime);
         userService.updateUser(user);
-        return "LOGIN_SUCCESS";
+        return "LOGIN_SUCCESS#" + svrLastLoginDate;
     }
 
     /*
@@ -86,9 +93,18 @@ public class MainController {
      */
     @RequestMapping(value = "/btl/readsave", method = RequestMethod.GET)
     @ResponseBody
-    public SaveInfo readSave(@RequestParam(name = "uuid") String uuid_str) {
+    public SynInfo readSave(@RequestParam(name = "uuid") String uuid_str) {
         Long uuid = Long.valueOf(uuid_str);
-        SaveInfo saveInfo = new SaveInfo();
+        SynInfo synInfo = new SynInfo();
+        // 读取用户信息
+        User user = userService.findUserByUuid(uuid);
+        if (user != null) {
+            synInfo.setUuid(uuid);
+            synInfo.setpNumber(user.getpNumber());
+            synInfo.setLastLoginDate(user.getLastLoginDate());
+            synInfo.setTotalPlayTime(user.getTotalPlayTime());
+        }
+        // 读取存档信息
         List<String> saves = new ArrayList<>();
         for (int i = 0; i <= 4; i++) {
             Save save = saveService.findSaveByUuidAndSaveid(uuid, i);
@@ -96,9 +112,12 @@ public class MainController {
                 saves.add(save.getContent());
             }
         }
-        saveInfo.setUuid(uuid);
-        saveInfo.setSaves(saves);
-        return saveInfo;
+        synInfo.setSaves(saves);
+        // 读取成就信息
+        Achievement achievement = achieveService.findAchieveByUuid(uuid);
+        synInfo.setAchievement(achievement);
+
+        return synInfo;
     }
 
     /*
@@ -106,10 +125,22 @@ public class MainController {
      */
     @RequestMapping(value = "/btl/writesave", method = RequestMethod.POST)
     @ResponseBody
-    public String writeSave(@RequestBody SaveInfo saveInfo) {
-        List<String> saves = saveInfo.getSaves();
+    public String writeSave(@RequestBody SynInfo synInfo) {
+        // 写入用户信息
+        User user = userService.findUserByUuid(synInfo.getUuid());
+        if (user != null) {
+            user.setpNumber(synInfo.getpNumber());
+            user.setLastLoginDate(synInfo.getLastLoginDate());
+            user.setTotalPlayTime(synInfo.getTotalPlayTime());
+            userService.updateUser(user);
+        } else {
+            return "WRITESAVE_FAIL";
+        }
+
+        // 写入存档信息
+        List<String> saves = synInfo.getSaves();
         for (int i = 0; i < saves.size(); i++) {
-            Save save = saveService.findSaveByUuidAndSaveid(saveInfo.getUuid(), i);
+            Save save = saveService.findSaveByUuidAndSaveid(synInfo.getUuid(), i);
             if (save != null) {
                 save.setContent(saves.get(i));
                 saveService.updateSave(save);
@@ -118,6 +149,26 @@ public class MainController {
                 return "WRITESAVE_FAIL";
             }
         }
+
+        // 写入成就信息
+        Achievement achievement = achieveService.findAchieveByUuid(synInfo.getUuid());
+        if (achievement != null) {
+            Achievement tmpAchieve = synInfo.getAchievement();
+            achievement.setHomework(tmpAchieve.isHomework());
+            achievement.setBedroom(tmpAchieve.isBedroom());
+            achievement.setWajue(tmpAchieve.isWajue());
+            achievement.setChuji(tmpAchieve.isChuji());
+            achievement.setGaoji(tmpAchieve.isGaoji());
+            achievement.setZhiwang(tmpAchieve.isZhiwang());
+            achievement.setChildhood(tmpAchieve.isChildhood());
+            achievement.setUniversity(tmpAchieve.isUniversity());
+            achievement.setChtime(tmpAchieve.getChtime());
+            achievement.setUntime(tmpAchieve.getUntime());
+            achieveService.updatAchievement(achievement);
+        } else {
+            return "WRITESAVE_FAIL";
+        }
+
         return "WRITESAVE_SUCCESS";
     }
 

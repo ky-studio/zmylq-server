@@ -24,10 +24,11 @@ public class User {
 
     }
 
-    public User(String pNumber, boolean status, String date) {
+    public User(String pNumber, boolean status, String date, String totalPlayTime) {
         this.pNumber = pNumber;
         this.status = status;
         this.lastLoginDate = date;
+        this.totalPlayTime = totalPlayTime;
     }
 
     public User(Long uuid, String pNumber, boolean status, String date, String totalPlayTime) {
