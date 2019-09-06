@@ -6,6 +6,7 @@ import com.ky.backtracking.service.SaveService;
 import com.ky.backtracking.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import sun.rmi.runtime.Log;
 
 import javax.jws.soap.SOAPBinding;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ public class MainController {
                     Save save = new Save(new SaveMultiKey(uuid, i), "");
                     saveService.addSave(save);
                 }
+                // 新建空成就
                 Achievement achievement = new Achievement(uuid);
                 achieveService.addAchievement(achievement);
                 return "REG_SUCCESS:" + String.valueOf(uuid);
@@ -63,6 +65,9 @@ public class MainController {
             User user = new User(null,true, datetime, "0.0");
             userService.addUser(user);
             uuid = user.getUuid();
+            // 新建空成就
+            Achievement achievement = new Achievement(uuid);
+            achieveService.addAchievement(achievement);
             return "REG_SUCCESS:" + String.valueOf(uuid);
         }
     }
@@ -129,7 +134,12 @@ public class MainController {
         // 写入用户信息
         User user = userService.findUserByUuid(synInfo.getUuid());
         if (user != null) {
-            user.setpNumber(synInfo.getpNumber());
+            String pnumber = synInfo.getpNumber();
+            if (pnumber != null && pnumber.length() > 0) {
+                user.setpNumber(pnumber);
+            } else {
+                user.setpNumber(null);
+            }
             user.setLastLoginDate(synInfo.getLastLoginDate());
             user.setTotalPlayTime(synInfo.getTotalPlayTime());
             userService.updateUser(user);
@@ -152,8 +162,11 @@ public class MainController {
 
         // 写入成就信息
         Achievement achievement = achieveService.findAchieveByUuid(synInfo.getUuid());
-        if (achievement != null) {
-            Achievement tmpAchieve = synInfo.getAchievement();
+        Achievement tmpAchieve = synInfo.getAchievement();
+        if (achievement != null && tmpAchieve != null) {
+            System.out.println(tmpAchieve.isBedroom());
+            System.out.println(tmpAchieve.isHomework());
+
             achievement.setHomework(tmpAchieve.isHomework());
             achievement.setBedroom(tmpAchieve.isBedroom());
             achievement.setWajue(tmpAchieve.isWajue());
@@ -165,8 +178,6 @@ public class MainController {
             achievement.setChtime(tmpAchieve.getChtime());
             achievement.setUntime(tmpAchieve.getUntime());
             achieveService.updatAchievement(achievement);
-        } else {
-            return "WRITESAVE_FAIL";
         }
 
         return "WRITESAVE_SUCCESS";
@@ -225,4 +236,16 @@ public class MainController {
             }
         }
     }
+
+    /*
+     * 获取排行榜信息
+     */
+    @RequestMapping(value = "/btl/rank", method = RequestMethod.GET)
+    @ResponseBody
+    public RankList rank(@RequestParam(name = "uuid") String uuid_str) {
+        Long uuid = Long.valueOf(uuid_str);
+        RankList rankList = achieveService.getRankList(uuid);
+        return rankList;
+    }
+
 }
