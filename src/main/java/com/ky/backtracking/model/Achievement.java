@@ -25,6 +25,12 @@ public class Achievement {
     @NotNull
     private boolean zhiwang;
     @NotNull
+    private boolean versatile;
+    @NotNull
+    private boolean programer;
+    @NotNull
+    private boolean dredger;
+    @NotNull
     private boolean childhood;
     @NotNull
     private boolean university;
@@ -52,8 +58,8 @@ public class Achievement {
     }
 
     public Achievement(Long uuid, boolean homework, boolean bedroom, boolean wajue, boolean chuji,
-                       boolean gaoji, boolean zhiwang, boolean childhood, boolean university,
-                       Float chtime, Float untime) {
+                       boolean gaoji, boolean zhiwang, boolean versatile, boolean programer,
+                       boolean dredger, boolean childhood, boolean university, Float chtime, Float untime) {
         this.uuid = uuid;
         this.homework = homework;
         this.bedroom = bedroom;
@@ -61,6 +67,9 @@ public class Achievement {
         this.chuji = chuji;
         this.gaoji = gaoji;
         this.zhiwang = zhiwang;
+        this.versatile = versatile;
+        this.programer = programer;
+        this.dredger = dredger;
         this.childhood = childhood;
         this.university = university;
         this.chtime = chtime;
@@ -129,6 +138,30 @@ public class Achievement {
 
     public void setZhiwang(boolean zhiwang) {
         this.zhiwang = zhiwang;
+    }
+
+    public boolean isVersatile() {
+        return versatile;
+    }
+
+    public void setVersatile(boolean versatile) {
+        this.versatile = versatile;
+    }
+
+    public boolean isProgramer() {
+        return programer;
+    }
+
+    public void setProgramer(boolean programer) {
+        this.programer = programer;
+    }
+
+    public boolean isDredger() {
+        return dredger;
+    }
+
+    public void setDredger(boolean dredger) {
+        this.dredger = dredger;
     }
 
     public boolean isChildhood() {

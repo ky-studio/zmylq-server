@@ -1,15 +1,22 @@
 package com.ky.backtracking.controller;
 
+import com.ky.backtracking.dao.BaseDataDao;
+import com.ky.backtracking.dao.FeedBackDao;
+import com.ky.backtracking.dao.GameDataDao;
+import com.ky.backtracking.dao.QstnaireDao;
 import com.ky.backtracking.model.*;
 import com.ky.backtracking.service.AchieveService;
 import com.ky.backtracking.service.SaveService;
 import com.ky.backtracking.service.UserService;
+import jdk.nashorn.internal.runtime.Debug;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sun.rmi.runtime.Log;
 
 import javax.jws.soap.SOAPBinding;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -24,6 +31,19 @@ public class MainController {
 
     @Autowired
     private AchieveService achieveService;
+
+    @Autowired
+    private FeedBackDao feedBackDao;
+
+    @Autowired
+    private QstnaireDao qstnaireDao;
+
+    @Autowired
+    private BaseDataDao baseDataDao;
+
+    @Autowired
+    private GameDataDao gameDataDao;
+
     /*
      * 用户第一次进入游戏，添加一个用户账号，返回给客户端一个UUID
      * 如果有手机号同时添加存档信息到存档表，如果没有则为游客不添加存档
@@ -133,6 +153,7 @@ public class MainController {
     public String writeSave(@RequestBody SynInfo synInfo) {
         // 写入用户信息
         User user = userService.findUserByUuid(synInfo.getUuid());
+        String ret = "WRITESAVE_SUCCESS";
         if (user != null) {
             String pnumber = synInfo.getpNumber();
             if (pnumber != null && pnumber.length() > 0) {
@@ -144,7 +165,7 @@ public class MainController {
             user.setTotalPlayTime(synInfo.getTotalPlayTime());
             userService.updateUser(user);
         } else {
-            return "WRITESAVE_FAIL";
+            ret = "WRITESAVE_FAIL";
         }
 
         // 写入存档信息
@@ -154,9 +175,6 @@ public class MainController {
             if (save != null) {
                 save.setContent(saves.get(i));
                 saveService.updateSave(save);
-            } else {
-                // ERROR LOG
-                return "WRITESAVE_FAIL";
             }
         }
 
@@ -164,15 +182,15 @@ public class MainController {
         Achievement achievement = achieveService.findAchieveByUuid(synInfo.getUuid());
         Achievement tmpAchieve = synInfo.getAchievement();
         if (achievement != null && tmpAchieve != null) {
-            System.out.println(tmpAchieve.isBedroom());
-            System.out.println(tmpAchieve.isHomework());
-
             achievement.setHomework(tmpAchieve.isHomework());
             achievement.setBedroom(tmpAchieve.isBedroom());
             achievement.setWajue(tmpAchieve.isWajue());
             achievement.setChuji(tmpAchieve.isChuji());
             achievement.setGaoji(tmpAchieve.isGaoji());
             achievement.setZhiwang(tmpAchieve.isZhiwang());
+            achievement.setVersatile(tmpAchieve.isVersatile());
+            achievement.setProgramer(tmpAchieve.isProgramer());
+            achievement.setDredger(tmpAchieve.isDredger());
             achievement.setChildhood(tmpAchieve.isChildhood());
             achievement.setUniversity(tmpAchieve.isUniversity());
             achievement.setChtime(tmpAchieve.getChtime());
@@ -180,7 +198,7 @@ public class MainController {
             achieveService.updatAchievement(achievement);
         }
 
-        return "WRITESAVE_SUCCESS";
+        return ret;
     }
 
     /*
@@ -248,4 +266,89 @@ public class MainController {
         return rankList;
     }
 
+    /*
+     * 提交反馈信息
+     */
+    @RequestMapping(value = "/btl/feedback", method = RequestMethod.POST)
+    @ResponseBody
+    public void feedback(@RequestBody FeedBack data) {
+        FeedBack feedBack = new FeedBack(data);
+        System.out.println(data.getClientVersion());
+        System.out.println(data.getNetworkType());
+        feedBackDao.save(feedBack);
+    }
+
+    /*
+     * 提交问卷信息
+     */
+    @RequestMapping(value = "/btl/qstnaire", method =  RequestMethod.POST)
+    @ResponseBody
+    public void qstnaire(@RequestBody Qstnaire data) {
+        Qstnaire qstnaire = new Qstnaire(data);
+        qstnaireDao.save(qstnaire);
+    }
+
+    /*
+     * 提交基本数据
+     */
+    @RequestMapping(value = "/btl/dep/base", method = RequestMethod.POST)
+    @ResponseBody
+    public void depBaseData(@RequestBody BaseData data) {
+        Date now = new Date();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        BaseData baseData = new BaseData(data);
+        // 设置时间戳为服务器时间
+        baseData.setTimestamp(df.format(now));
+        baseDataDao.save(baseData);
+    }
+
+    /*
+     * 提交游戏数据
+     */
+    @RequestMapping(value = "/btl/dep/game", method = RequestMethod.POST)
+    @ResponseBody
+    public void depGameData(@RequestBody GameList data) {
+        List<GameData> games = data.getGames();
+        for (GameData game : games) {
+            GameData gd = gameDataDao.findTopByUuidAndGamecodeOrderBySavenumDesc(game.getUuid(), game.getGamecode());
+            if (gd == null) { // 首次直接添加
+                GameData tmp = new GameData(game);
+                tmp.setSavenum(1); // 设置初始编号为1
+                gameDataDao.save(tmp);
+            } else { // 非首次更新
+
+                if (game.getSavenum() == 0) {
+                    // 点击次数无论任何游戏每次累加
+                    gd.setClicks(gd.getClicks() + game.getClicks());
+
+                    if (Game.IsSearchGame(gd.getGamecode())) { // 搜索类游戏
+                        if (!gd.isGamestatus()) { // 如果还未通关
+                            gd.setGamestatus(game.isGamestatus());
+                            if (gd.getClicks() == 0) { // 未进入过该游戏
+                                System.out.println("Duration: " + game.getDuration());
+                                gd.setDuration(gd.getDuration() + game.getDuration());
+                            } else { // 已经进入过该游戏
+                                System.out.println("Temptime: " + game.getTemptime());
+                                gd.setDuration(gd.getDuration() + game.getTemptime());
+                            }
+                        }
+                        // 如果已经通关状态和通关时长则不再修改
+
+                    } else { // 纯解密游戏
+                        if (!gd.isGamestatus()) { // 如果还未通关
+                            gd.setGamestatus(game.isGamestatus());
+                            gd.setDuration(gd.getDuration() + game.getDuration());
+                        }
+                        // 如果已经通关状态和通关时长则不再修改
+                    }
+                    gameDataDao.save(gd);
+                } else {
+                    GameData tmp = new GameData(game);
+                    tmp.setSavenum(gd.getSavenum() + 1); // 设置编号加1
+                    gameDataDao.save(tmp);
+                }
+
+            }
+        }
+    }
 }
