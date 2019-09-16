@@ -3,6 +3,8 @@ package com.ky.backtracking.service;
 import com.ky.backtracking.dao.AchievementDao;
 import com.ky.backtracking.model.Achievement;
 import com.ky.backtracking.model.RankList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ public class AchieveService {
 
     @Autowired
     private AchievementDao achievementDao;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AchieveService.class);
 
     public void addAchievement(Achievement achievement) {
         achievementDao.save(achievement);

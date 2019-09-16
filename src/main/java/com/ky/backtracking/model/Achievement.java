@@ -24,6 +24,8 @@ public class Achievement {
     private boolean gaoji;
     @NotNull
     private boolean zhiwang;
+
+    private Float njmaxtime;
     @NotNull
     private boolean versatile;
     @NotNull
@@ -51,6 +53,7 @@ public class Achievement {
         this.chuji = false;
         this.gaoji = false;
         this.zhiwang = false;
+        this.njmaxtime = 0f;
         this.childhood = false;
         this.university = false;
         this.chtime = 0f;
@@ -58,7 +61,7 @@ public class Achievement {
     }
 
     public Achievement(Long uuid, boolean homework, boolean bedroom, boolean wajue, boolean chuji,
-                       boolean gaoji, boolean zhiwang, boolean versatile, boolean programer,
+                       boolean gaoji, boolean zhiwang, Float njmaxtime, boolean versatile, boolean programer,
                        boolean dredger, boolean childhood, boolean university, Float chtime, Float untime) {
         this.uuid = uuid;
         this.homework = homework;
@@ -67,6 +70,7 @@ public class Achievement {
         this.chuji = chuji;
         this.gaoji = gaoji;
         this.zhiwang = zhiwang;
+        this.njmaxtime = njmaxtime;
         this.versatile = versatile;
         this.programer = programer;
         this.dredger = dredger;
@@ -140,6 +144,14 @@ public class Achievement {
         this.zhiwang = zhiwang;
     }
 
+    public Float getNjmaxtime() {
+        return njmaxtime;
+    }
+
+    public void setNjmaxtime(Float njmaxtime) {
+        this.njmaxtime = njmaxtime;
+    }
+
     public boolean isVersatile() {
         return versatile;
     }
@@ -194,5 +206,10 @@ public class Achievement {
 
     public void setUntime(Float untime) {
         this.untime = untime;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

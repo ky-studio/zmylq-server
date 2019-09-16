@@ -9,6 +9,8 @@ import com.ky.backtracking.service.AchieveService;
 import com.ky.backtracking.service.SaveService;
 import com.ky.backtracking.service.UserService;
 import jdk.nashorn.internal.runtime.Debug;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sun.rmi.runtime.Log;
@@ -44,6 +46,8 @@ public class MainController {
     @Autowired
     private GameDataDao gameDataDao;
 
+    private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
+
     /*
      * 用户第一次进入游戏，添加一个用户账号，返回给客户端一个UUID
      * 如果有手机号同时添加存档信息到存档表，如果没有则为游客不添加存档
@@ -64,6 +68,7 @@ public class MainController {
                 userService.updateUser(user);
                 uuid = user.getUuid();
                 // 从服务器同步存档到本地
+                LOG.info("register pnumber exist, uuid: {}", uuid);
                 return "REG_SYN_FROM_SERVER:" + String.valueOf(uuid);
             } else {
                 // 手机号不存在，添加新用户
@@ -78,6 +83,7 @@ public class MainController {
                 // 新建空成就
                 Achievement achievement = new Achievement(uuid);
                 achieveService.addAchievement(achievement);
+                LOG.info("register pnumber not exist, uuid: {}", uuid);
                 return "REG_SUCCESS:" + String.valueOf(uuid);
             }
 
@@ -88,6 +94,7 @@ public class MainController {
             // 新建空成就
             Achievement achievement = new Achievement(uuid);
             achieveService.addAchievement(achievement);
+            LOG.info("register without pnumber, uuid: {}", uuid);
             return "REG_SUCCESS:" + String.valueOf(uuid);
         }
     }
@@ -101,15 +108,17 @@ public class MainController {
     public String login(@RequestParam(name = "uuid") String uuid_str, @RequestParam(name = "datetime") String datetime) {
         Long uuid = Long.valueOf(uuid_str);
         User user = userService.findUserByUuid(uuid);
-        String svrLastLoginDate = user.getLastLoginDate();
         if (user == null) {
+            LOG.info("login fail, uuid: {} not exist", uuid);
             return "LOGIN_FAIL";
         }
+        String svrLastLoginDate = user.getLastLoginDate();
 //        Date now = new Date();
 //        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         user.setStatus(true);
         user.setLastLoginDate(datetime);
         userService.updateUser(user);
+        LOG.info("login success, uuid: {}", uuid);
         return "LOGIN_SUCCESS#" + svrLastLoginDate;
     }
 
@@ -128,6 +137,9 @@ public class MainController {
             synInfo.setpNumber(user.getpNumber());
             synInfo.setLastLoginDate(user.getLastLoginDate());
             synInfo.setTotalPlayTime(user.getTotalPlayTime());
+            LOG.info("read user, uuid: {}", uuid);
+        } else {
+            LOG.info("read user, user uuid: {} not found", uuid);
         }
         // 读取存档信息
         List<String> saves = new ArrayList<>();
@@ -135,12 +147,21 @@ public class MainController {
             Save save = saveService.findSaveByUuidAndSaveid(uuid, i);
             if (save != null) {
                 saves.add(save.getContent());
+                LOG.info("read save, uuid: {} saveid: {}", uuid, i);
+            } else {
+                LOG.info("read save, save uuid: {} saveid: {} not found", uuid, i);
             }
         }
         synInfo.setSaves(saves);
         // 读取成就信息
         Achievement achievement = achieveService.findAchieveByUuid(uuid);
-        synInfo.setAchievement(achievement);
+        if (achievement != null) {
+            synInfo.setAchievement(achievement);
+            LOG.info("read achievement, user uuid: {}", uuid);
+        } else {
+            LOG.info("read achievement, user uuid: {} not found", uuid);
+            LOG.info("achievement value: {}", achievement.toString());
+        }
 
         return synInfo;
     }
@@ -164,8 +185,10 @@ public class MainController {
             user.setLastLoginDate(synInfo.getLastLoginDate());
             user.setTotalPlayTime(synInfo.getTotalPlayTime());
             userService.updateUser(user);
+            LOG.info("write user, user uuid: {}", synInfo.getUuid());
         } else {
             ret = "WRITESAVE_FAIL";
+            LOG.info("write user, user uuid: {} not found", synInfo.getUuid());
         }
 
         // 写入存档信息
@@ -175,6 +198,9 @@ public class MainController {
             if (save != null) {
                 save.setContent(saves.get(i));
                 saveService.updateSave(save);
+                LOG.info("write save, user uuid: {} saveid: {}", synInfo.getUuid(), i);
+            } else {
+                LOG.info("write save, user uuid: {} saveid: {} not found", synInfo.getUuid(), i);
             }
         }
 
@@ -188,6 +214,7 @@ public class MainController {
             achievement.setChuji(tmpAchieve.isChuji());
             achievement.setGaoji(tmpAchieve.isGaoji());
             achievement.setZhiwang(tmpAchieve.isZhiwang());
+            achievement.setNjmaxtime(tmpAchieve.getNjmaxtime());
             achievement.setVersatile(tmpAchieve.isVersatile());
             achievement.setProgramer(tmpAchieve.isProgramer());
             achievement.setDredger(tmpAchieve.isDredger());
@@ -196,6 +223,10 @@ public class MainController {
             achievement.setChtime(tmpAchieve.getChtime());
             achievement.setUntime(tmpAchieve.getUntime());
             achieveService.updatAchievement(achievement);
+            LOG.info("write achievement, user uuid: {}", synInfo.getUuid());
+            LOG.info("achievement value: {}", achievement.toString());
+        } else {
+            LOG.info("write achievement, user uuid: {} not found", synInfo.getUuid());
         }
 
         return ret;
@@ -210,10 +241,12 @@ public class MainController {
         Long uuid = Long.valueOf(uuid_str);
         User user = userService.findUserByUuid(uuid);
         if (user == null) {
+            LOG.info("quit fail, user uuid: {} not found", uuid);
             return "QUIT_FAIL";
         } else {
             user.setStatus(false);
             userService.updateUser(user);
+            LOG.info("quit success, user uuid: {}", uuid);
             return "QUIT_SUCCESS";
         }
     }
@@ -227,6 +260,7 @@ public class MainController {
         Long uuid = Long.valueOf(uuid_str);
         User user = userService.findUserByUuid(uuid);
         if (user == null) {
+            LOG.info("bind fail, user uuid: {} not found", uuid);
             return "BIND_FAIL";
         } else {
             if (user.getpNumber() == null) { // 游客绑定手机号
@@ -235,6 +269,7 @@ public class MainController {
                     // 绑定已经使用过的手机号, 删除当前游客账号，返回已绑定手机号的账号uuid，客户端将本地保存的uuid修改为返回的uuid
                     // 当客户端收到此类返回应该再向服务器发送请求将本地存档同步到服务器或是同步服务器存档到本地
                     userService.deleteUserByUuid(uuid);
+                    LOG.info("bind pnumber exist, change user uuid: {} to {}", uuid, tmp.getUuid());
                     return "BIND_PNUMBER_EXIST:" + tmp.getUuid();
                 }  else {
                     // 绑定未使用的手机号
@@ -247,9 +282,11 @@ public class MainController {
                         saveService.addSave(save);
                     }
                     // 将本地存档同步到服务器, 客户端收到这个返回再发送一次writesave请求
+                    LOG.info("bind success, user uuid: {} bind to pnumber: {}", user.getUuid(), user.getpNumber());
                     return "BIND_SYN_TO_SERVER";
                 }
             } else { // 已经存在手机号的用户不能再绑定手机号
+                LOG.info("bind illegal, user uuid: {} had pnumber: {}", user.getUuid(), user.getpNumber());
                 return "BIND_ILLEGAL";
             }
         }
@@ -263,6 +300,7 @@ public class MainController {
     public RankList rank(@RequestParam(name = "uuid") String uuid_str) {
         Long uuid = Long.valueOf(uuid_str);
         RankList rankList = achieveService.getRankList(uuid);
+        LOG.info("get ranklist, user uuid: {}", uuid);
         return rankList;
     }
 
@@ -273,9 +311,11 @@ public class MainController {
     @ResponseBody
     public void feedback(@RequestBody FeedBack data) {
         FeedBack feedBack = new FeedBack(data);
-        System.out.println(data.getClientVersion());
-        System.out.println(data.getNetworkType());
+//        System.out.println(data.getClientVersion());
+//        System.out.println(data.getNetworkType());
         feedBackDao.save(feedBack);
+        LOG.info("submit feedback, user uuid: {}", data.getUuid());
+
     }
 
     /*
@@ -286,6 +326,7 @@ public class MainController {
     public void qstnaire(@RequestBody Qstnaire data) {
         Qstnaire qstnaire = new Qstnaire(data);
         qstnaireDao.save(qstnaire);
+        LOG.info("submit qstnaire, user uuid: {}", data.getUuid());
     }
 
     /*
@@ -300,6 +341,7 @@ public class MainController {
         // 设置时间戳为服务器时间
         baseData.setTimestamp(df.format(now));
         baseDataDao.save(baseData);
+        LOG.info("submit basedata, user uuid: {}", data.getUuid());
     }
 
     /*
@@ -315,8 +357,8 @@ public class MainController {
                 GameData tmp = new GameData(game);
                 tmp.setSavenum(1); // 设置初始编号为1
                 gameDataDao.save(tmp);
+                LOG.info("submit gamedata first, user uuid: {} gamecode: {}", game.getUuid(), game.getGamecode());
             } else { // 非首次更新
-
                 if (game.getSavenum() == 0) {
                     // 点击次数无论任何游戏每次累加
                     gd.setClicks(gd.getClicks() + game.getClicks());
@@ -325,27 +367,32 @@ public class MainController {
                         if (!gd.isGamestatus()) { // 如果还未通关
                             gd.setGamestatus(game.isGamestatus());
                             if (gd.getClicks() == 0) { // 未进入过该游戏
-                                System.out.println("Duration: " + game.getDuration());
+                                // System.out.println("Duration: " + game.getDuration());
                                 gd.setDuration(gd.getDuration() + game.getDuration());
                             } else { // 已经进入过该游戏
-                                System.out.println("Temptime: " + game.getTemptime());
+                                // System.out.println("Temptime: " + game.getTemptime());
                                 gd.setDuration(gd.getDuration() + game.getTemptime());
                             }
+                            LOG.info("submit gamedata need search not passed, user uuid: {} gamecode: {}", game.getUuid(), game.getGamecode());
+                        } else { // 如果已经通关状态和通关时长则不再修改
+                            LOG.info("submit gamedata need search passed, user uuid: {} gamecode: {}", game.getUuid(), game.getGamecode());
                         }
-                        // 如果已经通关状态和通关时长则不再修改
-
                     } else { // 纯解密游戏
                         if (!gd.isGamestatus()) { // 如果还未通关
                             gd.setGamestatus(game.isGamestatus());
                             gd.setDuration(gd.getDuration() + game.getDuration());
+                            LOG.info("submit gamedata normal not passed, user uuid: {} gamecode: {}", game.getUuid(), game.getGamecode());
+                        } else { // 如果已经通关状态和通关时长则不再修改
+                            LOG.info("submit gamedata normal passed, user uuid: {} gamecode: {}", game.getUuid(), game.getGamecode());
                         }
-                        // 如果已经通关状态和通关时长则不再修改
                     }
                     gameDataDao.save(gd);
+                    LOG.info("submit gamedata without newgame, user uuid: {} gamecode: {}", game.getUuid(), game.getGamecode());
                 } else {
                     GameData tmp = new GameData(game);
                     tmp.setSavenum(gd.getSavenum() + 1); // 设置编号加1
                     gameDataDao.save(tmp);
+                    LOG.info("submit gamedata with newgame, user uuid: {} gamecode: {}", game.getUuid(), game.getGamecode());
                 }
 
             }
