@@ -6,11 +6,11 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "achievement")
 public class Achievement {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long aid;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long aid;
 
-    @NotNull
+    @Id
     private Long uuid;
     @NotNull
     private boolean homework;
@@ -80,13 +80,13 @@ public class Achievement {
         this.untime = untime;
     }
 
-    public Long getAid() {
-        return aid;
-    }
-
-    public void setAid(Long aid) {
-        this.aid = aid;
-    }
+//    public Long getAid() {
+//        return aid;
+//    }
+//
+//    public void setAid(Long aid) {
+//        this.aid = aid;
+//    }
 
     public Long getUuid() {
         return uuid;
