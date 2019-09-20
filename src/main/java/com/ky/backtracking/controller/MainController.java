@@ -153,17 +153,4 @@ public class MainController {
             }
         }
     }
-
-    /*
-     * 获取排行榜信息
-     */
-    @RequestMapping(value = "/btl/rank", method = RequestMethod.GET)
-    @ResponseBody
-    public RankList rank(@RequestParam(name = "uuid") String uuid_str) {
-        Long uuid = Long.valueOf(uuid_str);
-        RankList rankList = achieveService.getRankList(uuid);
-        LOG.info("get ranklist, user uuid: {}", uuid);
-        return rankList;
-    }
-
 }

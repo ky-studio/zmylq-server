@@ -1,5 +1,6 @@
 package com.ky.backtracking.controller;
 
+import com.ky.backtracking.common.AsyncTask;
 import com.ky.backtracking.model.Achievement;
 import com.ky.backtracking.model.Save;
 import com.ky.backtracking.model.SynInfo;
@@ -10,11 +11,13 @@ import com.ky.backtracking.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@EnableAsync
 @RestController
 public class SynInfoController {
 
@@ -26,6 +29,8 @@ public class SynInfoController {
     private SaveService saveService;
     @Autowired
     private AchieveService achieveService;
+    @Autowired
+    private AsyncTask asyncTask;
 
     /*
      * 客户端从服务器读取存档，以同步到本地
@@ -77,62 +82,7 @@ public class SynInfoController {
     @ResponseBody
     public String writeSave(@RequestBody SynInfo synInfo) {
         // 写入用户信息
-        User user = userService.findUserByUuid(synInfo.getUuid());
-        String ret = "WRITESAVE_SUCCESS";
-        if (user != null) {
-            String pnumber = synInfo.getpNumber();
-            if (pnumber != null && pnumber.length() > 0) {
-                user.setpNumber(pnumber);
-            } else {
-                user.setpNumber(null);
-            }
-            user.setLastLoginDate(synInfo.getLastLoginDate());
-            user.setTotalPlayTime(synInfo.getTotalPlayTime());
-            userService.updateUser(user);
-            LOG.info("write user, user uuid: {}", synInfo.getUuid());
-        } else {
-            ret = "WRITESAVE_FAIL";
-            LOG.info("write user, user uuid: {} not found", synInfo.getUuid());
-        }
-
-        // 写入存档信息
-        List<String> saves = synInfo.getSaves();
-        for (int i = 0; i < saves.size(); i++) {
-            Save save = saveService.findSaveByUuidAndSaveid(synInfo.getUuid(), i);
-            if (save != null) {
-                save.setContent(saves.get(i));
-                saveService.updateSave(save);
-                LOG.info("write save, user uuid: {} saveid: {}", synInfo.getUuid(), i);
-            } else {
-                LOG.info("write save, user uuid: {} saveid: {} not found", synInfo.getUuid(), i);
-            }
-        }
-
-        // 写入成就信息
-        Achievement achievement = achieveService.findAchieveByUuid(synInfo.getUuid());
-        Achievement tmpAchieve = synInfo.getAchievement();
-        if (achievement != null && tmpAchieve != null) {
-            achievement.setHomework(tmpAchieve.isHomework());
-            achievement.setBedroom(tmpAchieve.isBedroom());
-            achievement.setWajue(tmpAchieve.isWajue());
-            achievement.setChuji(tmpAchieve.isChuji());
-            achievement.setGaoji(tmpAchieve.isGaoji());
-            achievement.setZhiwang(tmpAchieve.isZhiwang());
-            achievement.setNjmaxtime(tmpAchieve.getNjmaxtime());
-            achievement.setVersatile(tmpAchieve.isVersatile());
-            achievement.setProgramer(tmpAchieve.isProgramer());
-            achievement.setDredger(tmpAchieve.isDredger());
-            achievement.setChildhood(tmpAchieve.isChildhood());
-            achievement.setUniversity(tmpAchieve.isUniversity());
-            achievement.setChtime(tmpAchieve.getChtime());
-            achievement.setUntime(tmpAchieve.getUntime());
-            achieveService.updatAchievement(achievement);
-            LOG.info("write achievement, user uuid: {}", synInfo.getUuid());
-            LOG.info("achievement value: {}", achievement.toString());
-        } else {
-            LOG.info("write achievement, user uuid: {} not found", synInfo.getUuid());
-        }
-
-        return ret;
+        asyncTask.writeSynInfo(synInfo);
+        return "WRITESAVE_SUCCESS";
     }
 }
