@@ -41,8 +41,15 @@ public class AsyncTask {
     @Async
     public void initSavesAndAchievement(Long uuid) {
 // 新手机号注册用户新建空存档
+        String defsave[] = {
+                "0;\n",
+                ";;0\n0;sceneMystery_Charpter1_child\n",
+                ";;0\n0;sceneMystery_Charpter2\n",
+                ";;0\n0;sceneMystery_Charpter3\n",
+                ";;0\n0;sceneMystery_Charpter4\n"
+        };
         for (int i = 0; i <= 4; i++) {
-            Save save = new Save(new SaveMultiKey(uuid, i), "");
+            Save save = new Save(new SaveMultiKey(uuid, i), defsave[i]);
             saveService.addSave(save);
         }
         // 新建空成就
@@ -51,7 +58,6 @@ public class AsyncTask {
         LOG.info("initSavesAndAchievement completed, user uuid: {}", uuid);
     }
 
-    @Async
     public void writeSynInfo(SynInfo synInfo) {
         User user = userService.findUserByUuid(synInfo.getUuid());
         if (user != null) {
@@ -98,11 +104,11 @@ public class AsyncTask {
             achievement.setDredger(tmpAchieve.isDredger());
             achievement.setChildhood(tmpAchieve.isChildhood());
             achievement.setUniversity(tmpAchieve.isUniversity());
-            achievement.setChtime(tmpAchieve.getChtime());
-            achievement.setUntime(tmpAchieve.getUntime());
-            achieveService.updatAchievement(achievement);
+            achievement.setChtime((float)(Math.round(tmpAchieve.getChtime()*100)/100));
+            achievement.setUntime((float)(Math.round(tmpAchieve.getUntime()*100)/100));
+            achieveService.updateAchievement(achievement);
             LOG.info("write achievement, user uuid: {}", synInfo.getUuid());
-            LOG.info("achievement value: {}", achievement.toString());
+            //LOG.info("achievement value: {}", achievement.toString());
         } else {
             LOG.info("write achievement, user uuid: {} not found", synInfo.getUuid());
         }
@@ -111,6 +117,9 @@ public class AsyncTask {
     @Async
     public void commitFeedBack(FeedBack data) {
         FeedBack feedBack = new FeedBack(data);
+        Date now = new Date();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        data.setFeedbackTime(df.format(now));
         feedBackDao.save(feedBack);
         LOG.info("submit feedback, user uuid: {}", data.getUuid());
     }
@@ -118,6 +127,9 @@ public class AsyncTask {
     @Async
     public void commitQstnaire(Qstnaire data) {
         Qstnaire qstnaire = new Qstnaire(data);
+        Date now = new Date();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        data.setUploadtime(df.format(now));
         qstnaireDao.save(qstnaire);
         LOG.info("submit qstnaire, user uuid: {}", data.getUuid());
     }
@@ -125,18 +137,21 @@ public class AsyncTask {
     @Async
     public void commitBaseData(BaseData data) {
         Date now = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         BaseData baseData = new BaseData(data);
         // 设置时间戳为服务器时间
         baseData.setTimestamp(df.format(now));
         baseDataDao.save(baseData);
-        LOG.info("submit basedata, user uuid: {}", data.getUuid());
+        LOG.info("submit basedata, user uuid: {}, optype: {}", data.getUuid(), data.getOptype());
     }
 
     @Async
     public void commitGameData(GameList data) {
         List<GameData> games = data.getGames();
         for (GameData game : games) {
+            if (game.getUuid() == 0) {
+                return;
+            }
             GameData gd = gameDataDao.findTopByUuidAndGamecodeOrderBySavenumDesc(game.getUuid(), game.getGamecode());
             if (gd == null) { // 首次直接添加
                 GameData tmp = new GameData(game);

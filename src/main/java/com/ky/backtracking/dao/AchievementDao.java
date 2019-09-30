@@ -11,8 +11,10 @@ public interface AchievementDao extends CrudRepository<Achievement, Long> {
 
     Achievement findByUuid(Long uuid);
 
-    List<Achievement> findTop50ByChildhoodOrderByChtimeAsc(boolean childhood);
+    List<Achievement> findTop200ByChildhoodOrderByChtimeAsc(boolean childhood);
 
-    List<Achievement> findTop50ByUniversityOrderByUntimeAsc(boolean university);
+    List<Achievement> findTop200ByUniversityOrderByUntimeAsc(boolean university);
+
+    List<Achievement> findTop200ByOrderByNjmaxtimeDesc();
 
 }

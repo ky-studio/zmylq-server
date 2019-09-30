@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 @EnableAsync
 @RestController
@@ -26,6 +28,17 @@ public class MainController {
     private AchieveService achieveService;
     @Autowired
     private AsyncTask asyncTask;
+
+    /*
+     * 客户端测试是否能连接到服务器
+     */
+    @RequestMapping(value = "/btl/testping", method = RequestMethod.GET)
+    @ResponseBody
+    public String testPing() {
+        LOG.info("client connect!");
+        return "OK";
+    }
+
 
     /*
      * 用户第一次进入游戏，添加一个用户账号，返回给客户端一个UUID

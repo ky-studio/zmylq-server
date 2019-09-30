@@ -24,6 +24,8 @@ public class BaseData {
     private String screen; // 屏幕分辨率
     private String os; // 操作系统
     private String network; // 网络情况
+    private String ip;
+    private int port;
 
     public BaseData() {
 
@@ -43,6 +45,8 @@ public class BaseData {
         screen = data.screen;
         os = data.os;
         network = data.network;
+        ip = data.ip;
+        port = data.port;
     }
 
     public Long getBid() {
@@ -151,5 +155,21 @@ public class BaseData {
 
     public void setNetwork(String network) {
         this.network = network;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

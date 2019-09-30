@@ -7,4 +7,7 @@ public class RankList {
     public List<String> list1;
     public int order2;
     public List<String> list2;
+    public int orderNinjia;
+    public String timeNinjia;
+    public List<String> listNinjia;
 }

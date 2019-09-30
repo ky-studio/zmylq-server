@@ -27,8 +27,13 @@ public class AchieveService {
         achievementDao.save(achievement);
     }
 
-    public void updatAchievement(Achievement achievement) {
-        achievementDao.save(achievement);
+    public void updateAchievement(Achievement achievement) {
+        Achievement tmp = achievementDao.findByUuid(achievement.getUuid());
+        if (tmp != null) {
+            float maxtime = Math.max(achievement.getNjmaxtime(), tmp.getNjmaxtime());
+            achievement.setNjmaxtime(maxtime);
+            achievementDao.save(achievement);
+        }
     }
 
     public  Achievement findAchieveByUuid(Long uuid) {
@@ -39,22 +44,42 @@ public class AchieveService {
         RankList rankList = new RankList();
         rankList.order1 = -1;
         rankList.list1 = new ArrayList<>();
-        List<Achievement> achievementList = achievementDao.findTop50ByChildhoodOrderByChtimeAsc(true);
+        List<Achievement> achievementList = achievementDao.findTop200ByChildhoodOrderByChtimeAsc(true);
         for (int i = 0; i < achievementList.size(); i++) {
             if (achievementList.get(i).getUuid().equals(uuid)) {
                 rankList.order1 = i + 1;
             }
-            rankList.list1.add(achievementList.get(i).getChtime().toString());
+            if(i < 100) {
+                rankList.list1.add(achievementList.get(i).getChtime().toString());
+            }
         }
         rankList.order2 = -1;
         rankList.list2 = new ArrayList<>();
-        achievementList = achievementDao.findTop50ByUniversityOrderByUntimeAsc(true);
+        achievementList = achievementDao.findTop200ByUniversityOrderByUntimeAsc(true);
         for (int i = 0; i < achievementList.size(); i++) {
             if (achievementList.get(i).getUuid().equals(uuid)) {
                 rankList.order2 = i + 1;
             }
-            rankList.list2.add(achievementList.get(i).getUntime().toString());
+            if (i < 100) {
+                rankList.list2.add(achievementList.get(i).getUntime().toString());
+            }
         }
+        rankList.orderNinjia = -1;
+        rankList.listNinjia = new ArrayList<>();
+        achievementList = achievementDao.findTop200ByOrderByNjmaxtimeDesc();
+        for (int i = 0; i < achievementList.size(); i++) {
+            if (achievementList.get(i).getUuid().equals(uuid)) {
+                rankList.orderNinjia = i + 1;
+            }
+            if (i < 100) {
+                rankList.listNinjia.add(achievementList.get(i).getNjmaxtime().toString());
+            }
+        }
+        Achievement achievement = achievementDao.findByUuid(uuid);
+        if (achievement != null) {
+            rankList.timeNinjia = achievement.getNjmaxtime().toString();
+        }
+
         return rankList;
     }
 
