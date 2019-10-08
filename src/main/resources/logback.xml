@@ -8,7 +8,7 @@
 <configuration debug="true" scan="false" scanPeriod="30 seconds" packagingData="true">
 
     <!-- 设置变量。定义变量后，可以使“${}”来使用变量。 -->
-    <property name="LOG_FILE_LOCATION" value="/data2/logs/btl" />
+    <property name="LOG_FILE_LOCATION" value="D:/data2/logs/btl" />
     <property name="CONSOLE_LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %red([%thread]) %boldMagenta(%logger{50}) %cyan(%msg%n)"/>
 
