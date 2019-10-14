@@ -42,7 +42,7 @@ public class AsyncTask {
     public void initSavesAndAchievement(Long uuid) {
 // 新手机号注册用户新建空存档
         String defsave[] = {
-                "0;\n",
+                "0;1.0;0.7;\n",
                 ";;0\n0;sceneMystery_Charpter1_child\n",
                 ";;0\n0;sceneMystery_Charpter2\n",
                 ";;0\n0;sceneMystery_Charpter3\n",

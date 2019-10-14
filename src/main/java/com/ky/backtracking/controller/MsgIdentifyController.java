@@ -24,7 +24,7 @@ public class MsgIdentifyController {
         LOG.info("randomCode: {}", randomCode);
         SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");
         Calendar c = Calendar.getInstance();
-        c.add(Calendar.MINUTE, 2);
+        c.add(Calendar.MINUTE, 5);
         String currentTime = sf.format(c.getTime());// 生成5分钟后时间，用户校验是否过期
         long time = new Date().getTime();
         // CommonUtil.sendMessage(pnumber, randomCode, String.valueOf(time));
@@ -52,6 +52,7 @@ public class MsgIdentifyController {
             if (hashMd5.equalsIgnoreCase(reqMd5)) {
                 // success
                 LOG.info("identify success, mobile: {}", pnumber);
+
                 return "IDF_SUCCESS";
             } else {
                 // fail
