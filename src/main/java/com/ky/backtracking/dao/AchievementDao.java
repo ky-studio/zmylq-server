@@ -1,6 +1,7 @@
 package com.ky.backtracking.dao;
 
 import com.ky.backtracking.model.Achievement;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import javax.transaction.Transactional;
@@ -17,4 +18,11 @@ public interface AchievementDao extends CrudRepository<Achievement, Long> {
 
     List<Achievement> findTop200ByOrderByNjmaxtimeDesc();
 
+    void deleteAchievementsByUuidAfter(Long uuid);
+
+    @Query("select max(ach.uuid) from Achievement ach")
+    Long findMaxUuid();
+
+    List<Achievement> findByUuidBetween(Long begin, Long end);
+    List<Achievement> findByUuidAfter(Long begin);
 }

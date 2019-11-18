@@ -22,12 +22,12 @@ public class MsgIdentifyController {
     public Map<String, Object> sendMessage(@RequestParam(name = "pnumber") String pnumber) {
         String randomCode = CommonUtil.randomNum(6);
         LOG.info("randomCode: {}", randomCode);
+        long time = new Date().getTime();
         SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");
         Calendar c = Calendar.getInstance();
         c.add(Calendar.MINUTE, 5);
         String currentTime = sf.format(c.getTime());// 生成5分钟后时间，用户校验是否过期
-        long time = new Date().getTime();
-        // CommonUtil.sendMessage(pnumber, randomCode, String.valueOf(time));
+        CommonUtil.sendMessage(pnumber, randomCode, String.valueOf(time));
         String hashMd5 = CommonUtil.generateMd5Hex(KEY + "@" + pnumber + "@" + currentTime + "@" + randomCode);
         Map<String, Object> ret = new HashMap<>();
         ret.put("md5", hashMd5);

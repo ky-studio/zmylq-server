@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import sun.rmi.runtime.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,6 +38,8 @@ public class AsyncTask {
     private BaseDataDao baseDataDao;
     @Autowired
     private GameDataDao gameDataDao;
+    @Autowired
+    private Base64Util base64Util;
 
     @Async
     public void initSavesAndAchievement(Long uuid) {
@@ -119,7 +122,16 @@ public class AsyncTask {
         FeedBack feedBack = new FeedBack(data);
         Date now = new Date();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        data.setFeedbackTime(df.format(now));
+        SimpleDateFormat df1 = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        feedBack.setFeedbackTime(df.format(now));
+        String saveimagename = String.format("FB%s%s", df1.format(now), CommonUtil.randomNum(4));
+        if (base64Util.Base64str2Image(data.getBase64img(), saveimagename)) {
+            feedBack.setBase64img(saveimagename);
+            LOG.info("save feedback image:{} success", saveimagename);
+        } else {
+            LOG.info("save feedback image:{} fail", saveimagename);
+            feedBack.setBase64img(null);
+        }
         feedBackDao.save(feedBack);
         LOG.info("submit feedback, user uuid: {}", data.getUuid());
     }
@@ -129,20 +141,24 @@ public class AsyncTask {
         Qstnaire qstnaire = new Qstnaire(data);
         Date now = new Date();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        data.setUploadtime(df.format(now));
+        qstnaire.setUploadtime(df.format(now));
         qstnaireDao.save(qstnaire);
         LOG.info("submit qstnaire, user uuid: {}", data.getUuid());
     }
 
     @Async
     public void commitBaseData(BaseData data) {
+//        if (data.getUuid() == 0) {
+//            LOG.info("commit error uuid: 0");
+//            return;
+//        }
         Date now = new Date();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         BaseData baseData = new BaseData(data);
         // 设置时间戳为服务器时间
         baseData.setTimestamp(df.format(now));
         baseDataDao.save(baseData);
-        LOG.info("submit basedata, user uuid: {}, optype: {}", data.getUuid(), data.getOptype());
+        LOG.info("submit basedata, user uuid: {}, optype: {}， opstatus: {}", data.getUuid(), data.getOptype(), data.getOpstatus());
     }
 
     @Async

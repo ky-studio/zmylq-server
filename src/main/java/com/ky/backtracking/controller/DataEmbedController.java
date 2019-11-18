@@ -27,7 +27,10 @@ public class DataEmbedController {
     public void depBaseData(HttpServletRequest request, @RequestBody BaseData data) {
 //        LOG.info("IP: {}", request.getRemoteAddr());
 //        LOG.info("Port: {}", request.getRemotePort());
-        data.setIp(request.getRemoteAddr());
+        //data.setIp(request.getRemoteAddr());
+        //LOG.info("X-Real-IP: {}", request.getHeader("X-Real-IP"));
+        //LOG.info("X-Forwarded-For: {}", request.getHeader("X-Forwarded-For"));
+        //data.setIp(request.getHeader("X-Forwarded-For").toString());
         data.setPort(request.getRemotePort());
         asyncTask.commitBaseData(data);
     }

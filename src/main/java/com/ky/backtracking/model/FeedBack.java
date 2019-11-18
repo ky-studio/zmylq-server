@@ -16,6 +16,9 @@ public class FeedBack {
     private String deviceModel;
     private String networkType;
     private String clientVersion;
+    private String isAgreeContact;
+    private String contact;
+    private String base64img;
 
     public FeedBack() {
 
@@ -30,6 +33,8 @@ public class FeedBack {
         this.deviceModel = feedBack.deviceModel;
         this.networkType = feedBack.networkType;
         this.clientVersion = feedBack.clientVersion;
+        this.isAgreeContact = feedBack.isAgreeContact;
+        this.contact = feedBack.contact;
     }
 
     public Long getFid() {
@@ -102,5 +107,29 @@ public class FeedBack {
 
     public String getClientVersion() {
         return clientVersion;
+    }
+
+    public String getIsAgreeContact() {
+        return isAgreeContact;
+    }
+
+    public void setIsAgreeContact(String isAgreeContact) {
+        this.isAgreeContact = isAgreeContact;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public String getBase64img() {
+        return base64img;
+    }
+
+    public void setBase64img(String base64img) {
+        this.base64img = base64img;
     }
 }

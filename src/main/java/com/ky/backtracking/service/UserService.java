@@ -3,7 +3,6 @@ package com.ky.backtracking.service;
 import com.ky.backtracking.dao.UserDao;
 import com.ky.backtracking.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

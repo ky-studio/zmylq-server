@@ -1,0 +1,401 @@
+<html itemscope="" itemtype="http://schema.org/WebPage" class="ua-safari ua-mobile ">
+
+<head>
+    <meta charset="UTF-8">
+    <title>人生溯游(手机版)</title>
+    <meta name="google-site-verification" content="ok0wCgT20tBBgo9_zat2iAcimtN4Ftf5ccsh092Xeyw">
+    <meta name="viewport"
+        content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+</head>
+
+<style>
+    body {
+        height: 900px;
+        background-color: #ffffff;
+        position: relative;
+        bottom: 0;
+
+        background: url(http://172.19.9.171:8080/bg.jpg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        -webkit-background-size: cover;
+        -o-background-size: cover;
+        background-position: center 0;
+    }
+
+    .splash {
+        position: absolute;
+        height: 100%;
+        width: 350px;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    .head_div {
+        height: 100px;
+        font-size: 12px;
+        color: white;
+        padding-bottom: 1%;
+        margin-top: 15%;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .head_left {
+        float: left;
+        height: 100%;
+        width: 35%;
+    }
+
+    .head_right {
+        float: right;
+        height: 100%;
+        width: 65%;
+    }
+
+    .img_icon {
+        height: 100%; 
+        float: left;
+    }
+
+    .head_text {
+        margin-top: 1%;
+        float: left;
+        width: 100%;
+        height: 49%;
+        text-align: left;
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .head_btn {
+        float: left;
+        margin-top: 1%;
+        width: 100%;
+        height: 49%;
+    }
+
+    .img_download {
+        height: 90%; 
+        float: left;     
+    }
+
+    .img_bk {
+        position: absolute;
+        float: left;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        text-align: center;
+        margin: auto 0;
+        visibility: hidden;
+        object-fit: fill;
+    }
+
+    .mid_div {
+        width: 350px;
+        height: 70px;
+        text-align: center;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .splash-text {
+        text-align: left;
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+
+    p {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .center_photo {
+        width: 300px;
+        margin: 25px 25px 25px 25px;
+        padding: 0;
+        height: 533px;
+    }
+    .center_photo img{width: 100%; height: 100%;}
+    .point {
+        height: 50px;
+        position: relative;
+        top: -40px;
+        width: 192px;
+        margin: 0 auto;
+        left: 0px;
+        z-index: 999;
+        text-align: center;
+    }
+    .point ul li {
+        width: 20px;
+        height: 20px;
+        margin: 0 5px;
+        float: left;
+        list-style: none;
+    }
+    .point ul li img {width: 20px; height: 20px;}
+    .point ul li img hover{cursor: pointer;}
+
+
+</style>
+
+<body>
+    <img id="bk" class="img_bk" src="guide.png" onclick="bkClick()" />
+    <div class="splash">
+
+        <div class="head_div">
+            <div class="head_left">
+                <img id="icon" class="img_icon" src="icon.png"/>
+            </div>
+            <div class="head_right">
+                <div class="head_text">
+                    <p style="font-size: 22px; font-weight: bold; display: inline;">人生溯游</p><br>
+                    <p style="font-size: 16px; display: inline; color: #515151;">Backtracking Life</p>
+                </div>
+                <div class="head_btn">
+                    <a onclick="link()">
+                        <img id="download" class="img_download" src="download.png"/>
+                    </a>
+                </div>                  
+            </div>
+        </div>
+
+        <hr style="background-color: #515151; height: 1px; border: none;">
+        <p class="splash-text" style="font-size: 20px; font-weight: bold; line-height: 1%;">简介</p>
+        <div class="mid_div">
+            <p class="splash-text" style="font-size: 16px; color: #515151;">人生溯游是一款益智解密冒险游戏，主角穿梭在自己的层层梦境当中，通过解密，回溯自己的一生，拼凑记忆。
+            </p>
+        </div>
+
+        <hr style="background-color: #515151; height: 1px; border: none;">
+        <p class="splash-text" style="font-size: 20px; font-weight: bold; line-height: 1%;">预览</p>
+        <div class="center_photo">
+            <!-- 要切换的图片 -->
+            <img alt="tupian" src="banner1.png" style="height:100%; width:100%" id="img"/>
+            <div class="point" style="display:block;">
+                <ul>
+                <!-- ul、li实现“小圆点” -->
+                    <li id="p1" onmouseover="point(this)" onmouseout="leave()" >
+                        <img src="ok01.png" alt="" id="i1" />
+                    </li>
+                    <li id="p2" onmouseover="point(this)" onmouseout="leave()" >
+                        <img src="ok02.png" alt="" id="i2" />
+                    </li>
+                    <li id="p3" onmouseover="point(this)" onmouseout="leave()" >
+                        <img src="ok02.png" alt="" id="i3" />
+                    </li>
+                    <li id="p4" onmouseover="point(this)" onmouseout="leave()" >
+                        <img src="ok02.png" alt="" id="i4" />
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        //初始化图片、apk路径
+        var url_base = "http://172.19.9.171:8080/";
+        var guide_url = url_base + "guide.png";
+        var banner1_url = url_base + "banner1.png";
+        var banner2_url = url_base + "banner2.png";
+        var banner3_url = url_base + "banner3.png";
+        var banner4_url = url_base + "banner4.png";
+        var ok01_url = url_base + "ok01.png";
+        var ok02_url = url_base + "ok02.png";
+        var download_url = url_base + "download.png";
+        var icon_url = url_base + "icon.png";
+        var apk_url = url_base + "/btl/download/btl.apk";
+
+        document.getElementById("bk").src = guide_url;
+        document.getElementById("img").src = banner1_url;
+        document.getElementById("i1").src = ok01_url;
+        document.getElementById("i2").src = ok02_url;
+        document.getElementById("i3").src = ok02_url;
+        document.getElementById("i4").src = ok02_url;
+        document.getElementById("download").src = download_url;
+        document.getElementById("icon").src = icon_url;
+
+        var bk = document.getElementById("bk");
+
+        // 下载按钮
+        function link() {
+
+            var ua = navigator.userAgent.toLowerCase();
+            var u = navigator.userAgent;
+            var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+            if (isiOS) {//如果是ios版本
+                alert("暂无IOS版本");
+                return;
+            }
+            else { //安卓版本
+                //微信打开
+                if (ua.match(/MicroMessenger/i) == "micromessenger") {
+                    console.log("weixin");
+                    bk.style.visibility = "visible";
+                }
+                //浏览器打开
+                else {
+                    console.log("浏览器");
+                    window.location.href = apk_url;
+                }
+            }
+        }
+
+        // 背景导航图
+        function bkClick() {
+            //判断是微信打开还是浏览器
+            var ua = navigator.userAgent.toLowerCase();
+            //微信打开
+            if (ua.match(/MicroMessenger/i) == "micromessenger") {
+                console.log("weixin");
+                if (bk.style.visibility == "visible") {
+                    bk.style.visibility = "hidden";
+                }
+                else {
+                    bk.style.visibility = "visible";
+                }
+            }
+            //浏览器打开
+            else {
+                console.log("浏览器");
+            }
+        }
+
+        //轮播banner
+        var min=1, max=4;
+        //设置切换的图片
+        var imgList = new Array();
+        imgList[0]=banner1_url;
+        imgList[1]=banner2_url;
+        imgList[2]=banner3_url;
+        imgList[3]=banner4_url;
+        //自动变化“小圆点”
+        var li_imgList = new Array();
+        li_imgList[0]="i1";
+        li_imgList[1]="i2";
+        li_imgList[2]="i3";
+        li_imgList[3]="i4";
+        //鼠标触碰修改
+        var liList = new Array();
+        liList[0]="p1";
+        liList[1]="p2";
+        liList[2]="p3";
+        liList[3]="p4";
+
+        //自动循环
+        var int=self.setInterval("loop()",3000);
+        function loop(){
+            var str=document.getElementById("img").src;
+            for(var i=0; i<4; i++){
+                if(min==4){
+                    min=0;
+                }
+                if(i==min){
+                    document.getElementById("img").src=imgList[i];
+                    min++;
+                    if(i==0){
+                        document.getElementById(li_imgList[i]).src=ok01_url;
+                        document.getElementById(li_imgList[3]).src=ok02_url;
+                    }else{
+                        document.getElementById(li_imgList[i]).src=ok01_url;
+                        document.getElementById(li_imgList[i-1]).src=ok02_url;
+                    }
+                    break;
+                }
+            }
+        }
+        //鼠标触碰显示图片+暂停循环显示
+        var a=3;
+        function point(obj){
+            clearInterval(int);
+            for(var i=0;i<4;i++){
+                if(obj.id==liList[i]){
+                    document.getElementById("img").src=imgList[i];
+                    min=i+1;
+                    document.getElementById(li_imgList[i]).src=ok01_url;
+                    for(var a=0;a<4;a++){
+                        if(a!=i){
+                            document.getElementById(li_imgList[a]).src=ok02_url;
+                        }
+                    }
+                }
+            }
+        }
+        //鼠标离开继续循环
+        function leave(){
+            int = setInterval("loop()",3000);
+        }
+        //手指滑动切换banner
+        var mybody = document.getElementsByTagName('body')[0];
+        var h = document.documentElement.clientHeight;
+        mybody.style.height = h + 'px';
+        //滑动处理
+        var startX, startY, moveEndX, moveEndY, X, Y;   
+        mybody.addEventListener('touchstart', function(e) {
+            //暂停循环
+            clearInterval(int);
+            startX = e.touches[0].pageX;
+            startY = e.touches[0].pageY;
+        }, { passive: false });
+        var ifleft=0;
+        var ifright=0;
+        mybody.addEventListener('touchmove', function(e) {
+            //e.preventDefault();
+            moveEndX = e.changedTouches[0].pageX;
+            moveEndY = e.changedTouches[0].pageY;
+            X = moveEndX - startX;
+            Y = moveEndY - startY;
+            //向右
+            if ( Math.abs(X)-Math.abs(Y)>100 && X>0 ) { ifright=1; }
+            //向左
+            else if ( Math.abs(X)-Math.abs(Y)>100 && X < 0 ) { ifleft=1;}
+            else{ 
+                ifright=0; 
+                ifleft=0;
+            }
+        }, { passive: false });
+        mybody.addEventListener('touchend', function(e) {
+            if (ifright==1) {
+                if (min-1==0) {
+                    min=4;
+                    document.getElementById("img").src=imgList[min-1];
+                    document.getElementById(li_imgList[min-1]).src=ok01_url;
+                    document.getElementById(li_imgList[0]).src=ok02_url;
+                }
+                else if(min-1>0) {
+                    min--;
+                    document.getElementById("img").src=imgList[min-1];
+                    document.getElementById(li_imgList[min-1]).src=ok01_url;
+                    document.getElementById(li_imgList[min]).src=ok02_url;
+                }
+                ifright=0;
+            }
+            if (ifleft==1) {
+                if (min-1==3) {
+                    min=1;
+                    document.getElementById("img").src=imgList[min-1];
+                    document.getElementById(li_imgList[min-1]).src=ok01_url;
+                    document.getElementById(li_imgList[3]).src=ok02_url;
+                }
+                else if(min-1<3) {
+                    min++;
+                    document.getElementById("img").src=imgList[min-1];
+                    document.getElementById(li_imgList[min-1]).src=ok01_url;
+                    document.getElementById(li_imgList[min-2]).src=ok02_url;
+                }
+                ifleft=0;
+            }
+            //继续循环
+            int = setInterval("loop()",3000);
+        }, { passive: false });
+
+    </script>
+</body>
+
+</html>
